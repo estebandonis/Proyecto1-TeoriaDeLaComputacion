@@ -1,5 +1,5 @@
 def check_conca(token, regex, i):
-    if token.isalpha() and i + 1 < len(regex) and regex[i + 1].isalpha():
+    if token not in "(|*) " and i + 1 < len(regex) and regex[i + 1] not in "(|*) ":
         # Concatenación encontrada, agregamos los caracteres juntos
         a = check_conca(token, regex, i + 1)
         return a
@@ -7,7 +7,7 @@ def check_conca(token, regex, i):
         return i
 def shunting_yard_regex(regex):
     # Grado de precedencia de los operadores
-    precedencia = {'*': 3, '+': 2, '.': 1}
+    precedencia = {'*': 3, '|': 2, '.': 1}
 
     # Lista para guardar operandos y operadores
     operadores = []
@@ -17,13 +17,7 @@ def shunting_yard_regex(regex):
     i = 0
     while i < len(regex):
         token = regex[i]
-        if token.isalpha() or token == 'ε':
-            # if token.isalpha() and i + 1 < len(regex) and regex[i + 1].isalpha():
-            #     # Concatenación encontrada, agregamos los caracteres juntos
-            #     operandos.append(token + regex[i + 1])
-            #     i += 1
-            #     print("operandos")
-            #     print(operandos)
+        if token not in "(|) ":
 
             a = check_conca(token, regex, i)
             if a != i:
@@ -43,8 +37,8 @@ def shunting_yard_regex(regex):
 
             else:
                 operandos.append(token)
-        elif token in "+*":
-            while operadores and operadores[-1] in "+*" and precedencia[operadores[-1]] >= precedencia[token]:
+        elif token in "|*":
+            while operadores and operadores[-1] in "|*" and precedencia[operadores[-1]] >= precedencia[token]:
                 operandos.append(operadores.pop())
             operadores.append(token)
         elif token == '(':
@@ -63,8 +57,6 @@ def shunting_yard_regex(regex):
 
 
 def test_thompson_to_text_prueba(expr, output_text_file):
-    stack = []
-
     contadorEstados = 0
 
     estados = []
@@ -74,7 +66,6 @@ def test_thompson_to_text_prueba(expr, output_text_file):
     estados_aceptacion = set()
     
     grupos = []
-    contadorChar = 0
 
     stri = expr.split()
 
@@ -94,7 +85,7 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 grupos.append(carac)
             else:
                 if b + 1 < len(stri) and b + 2 < len(stri):
-                    if stri[b + 1] != '+' and stri[b + 2] != '+':
+                    if stri[b + 1] != '|' and stri[b + 2] != '|':
                         grupos.append(carac)
                 else:
                     grupos.append(carac)
@@ -105,7 +96,7 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 else:
                     alfabeto.append(carac)
 
-        elif carac == '+':
+        elif carac == '|':
             if stri[b - 1] == carac:
                 grupos.append(carac)
             else:
@@ -119,7 +110,7 @@ def test_thompson_to_text_prueba(expr, output_text_file):
     l = 0
     while l < len(grupos):
         group = grupos[l]
-        if '+' in group:
+        if '|' in group:
             if len(group) > 1:
                 if contadorEstados == 0:
                     nuevo_estado_inicial = contadorEstados
@@ -137,12 +128,9 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 transiciones.append((nuevo_estado_inicial, group[0], nuevo_estado_final))
                 transiciones.append((nuevo_estado_inicial, group[1], nuevo_estado_final))
 
-            else:
-                print('+')
-
         elif '*' in group:
             grupoAnterior = grupos[l - 1]
-            if '+' not in grupoAnterior:
+            if '|' not in grupoAnterior:
                 ultimaTransition = transiciones.pop()
                 ultimoEstado = estados[-1]
                 penUltimoEstado = estados[-2]
@@ -153,9 +141,9 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
                 estados.append(nuevo_estado_final)
 
-                transiciones.append((nuevo_estado_inicial, 'lamda', nuevo_estado_grupo_anterior))
+                transiciones.append((nuevo_estado_inicial, '𝜀', nuevo_estado_grupo_anterior))
                 transiciones.append((nuevo_estado_grupo_anterior, ultimaTransition[1], nuevo_estado_grupo_anterior))
-                transiciones.append((nuevo_estado_grupo_anterior, 'lamda', nuevo_estado_final))
+                transiciones.append((nuevo_estado_grupo_anterior, '𝜀', nuevo_estado_final))
 
                 contadorEstados += 1
 
@@ -173,11 +161,11 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 estados.append(nuevo_estado_grupo_anterior_final)
                 estados.append(nuevo_estado_final)
 
-                transiciones.append((nuevo_estado_inicial, 'lamda', nuevo_estado_grupo_anterior_inicial))
+                transiciones.append((nuevo_estado_inicial, '𝜀', nuevo_estado_grupo_anterior_inicial))
                 transiciones.append((nuevo_estado_grupo_anterior_inicial, ultimaTransition[1], nuevo_estado_grupo_anterior_final))
                 transiciones.append((nuevo_estado_grupo_anterior_inicial, penUltimaTransition[1], nuevo_estado_grupo_anterior_final))
-                transiciones.append((nuevo_estado_grupo_anterior_final, 'lamda', nuevo_estado_grupo_anterior_inicial))
-                transiciones.append((nuevo_estado_grupo_anterior_final, 'lamda', nuevo_estado_final))
+                transiciones.append((nuevo_estado_grupo_anterior_final, '𝜀', nuevo_estado_grupo_anterior_inicial))
+                transiciones.append((nuevo_estado_grupo_anterior_final, '𝜀', nuevo_estado_final))
 
                 contadorEstados += 2
 
@@ -212,7 +200,7 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
 
 def main():
-    infix_regex = "((𝑎+𝑏)*)𝑎𝑎(𝑎+𝑏)*"
+    infix_regex = "(1|0)*(011*)(0|𝜀)"
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
 
