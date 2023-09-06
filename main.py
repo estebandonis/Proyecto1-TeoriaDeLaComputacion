@@ -194,6 +194,8 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
         l += 1
 
+    estados_aceptacion.add(estados[-1])
+
     with open(output_text_file, 'w', encoding='utf-8') as file:
         file.write(f"ESTADOS = {{{', '.join(map(str, estados))}}}\n")
         file.write(f"SIMBOLOS = {{{', '.join(alfabeto)}}}\n")
@@ -203,7 +205,7 @@ def test_thompson_to_text_prueba(expr, output_text_file):
         file.write(f"TRANSICIONES = {{{transiciones_str}}}\n")
 
 def main():
-    infix_regex = "(b+b)abb(a+b)*"
+    infix_regex = "((b+b)*)abb(a+b)*"
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
 
