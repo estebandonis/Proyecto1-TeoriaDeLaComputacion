@@ -93,6 +93,12 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
                 grupos.append(carac)
             else:
+                if b + 1 < len(stri) and b + 2 < len(stri):
+                    if stri[b + 1] != '+' and stri[b + 2] != '+':
+                        grupos.append(carac)
+                else:
+                    grupos.append(carac)
+
                 if carac in alfabeto:
                     alfabeto.remove(carac)
                     alfabeto.append(carac)
@@ -151,7 +157,7 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 transiciones.append((nuevo_estado_grupo_anterior, ultimaTransition[1], nuevo_estado_grupo_anterior))
                 transiciones.append((nuevo_estado_grupo_anterior, 'lamda', nuevo_estado_final))
 
-                contadorEstados += 2
+                contadorEstados += 1
 
             else:
                 ultimaTransition = transiciones.pop()
@@ -204,15 +210,11 @@ def test_thompson_to_text_prueba(expr, output_text_file):
         transiciones_str = ', '.join([f"({t[0]}, {t[1]}, {t[2]})" for t in transiciones])
         file.write(f"TRANSICIONES = {{{transiciones_str}}}\n")
 
+
 def main():
-    infix_regex = "((b+b)*)abb(a+b)*"
+    infix_regex = "((𝑎+𝑏)*)𝑎𝑎(𝑎+𝑏)*"
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
-
-    # # Ejemplo de uso con expresión en notación postfix
-    # output_text_file = "afn.txt"
-    # thompson_to_text(postfix_regex, output_text_file)
-    # print(f"Descripción del AFN guardada en '{output_text_file}'")
 
     # Ejemplo de uso con expresión en notación postfix
     output_text_file = "afn.txt"
