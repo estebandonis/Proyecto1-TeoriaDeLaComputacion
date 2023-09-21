@@ -5,6 +5,8 @@ def check_conca(token, regex, i):
         return a
     else:
         return i
+
+
 def shunting_yard_regex(regex):
     # Grado de precedencia de los operadores
     precedencia = {'*': 3, '|': 2, '.': 1}
@@ -21,16 +23,16 @@ def shunting_yard_regex(regex):
 
             a = check_conca(token, regex, i)
             if a != i:
-                list = [token]
+                lista = [token]
                 while i < a:
                     contador = 1
-                    list.append(regex[i + contador])
+                    lista.append(regex[i + contador])
                     contador += 1
 
                     i += 1
 
                 string = ''
-                for letra in list:
+                for letra in lista:
                     string += letra
 
                 operandos.append(string)
@@ -63,8 +65,8 @@ def test_thompson_to_text_prueba(expr, output_text_file):
     alfabeto = []
     transiciones = []
     estado_inicial = 0
-    estados_aceptacion = set()
-    
+    estados_aceptacion = []
+
     grupos = []
 
     stri = expr.split()
@@ -72,7 +74,7 @@ def test_thompson_to_text_prueba(expr, output_text_file):
     b = 0
     while b < len(stri):
         carac = stri[b]
-        if carac.isalnum():
+        if carac not in "(|) ":
             if len(carac) > 1:
                 for s in carac:
                     if s in alfabeto:
@@ -87,6 +89,11 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 if b + 1 < len(stri) and b + 2 < len(stri):
                     if stri[b + 1] != '|' and stri[b + 2] != '|':
                         grupos.append(carac)
+
+                elif b + 1 < len(stri):
+                    if stri[b + 1] != '|':
+                        grupos.append(carac)
+
                 else:
                     grupos.append(carac)
 
@@ -107,9 +114,9 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
         b += 1
 
-    l = 0
-    while l < len(grupos):
-        group = grupos[l]
+    linea = 0
+    while linea < len(grupos):
+        group = grupos[linea]
         if '|' in group:
             if len(group) > 1:
                 if contadorEstados == 0:
@@ -129,7 +136,7 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 transiciones.append((nuevo_estado_inicial, group[1], nuevo_estado_final))
 
         elif '*' in group:
-            grupoAnterior = grupos[l - 1]
+            grupoAnterior = grupos[linea - 1]
             if '|' not in grupoAnterior:
                 ultimaTransition = transiciones.pop()
                 ultimoEstado = estados[-1]
@@ -162,8 +169,10 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 estados.append(nuevo_estado_final)
 
                 transiciones.append((nuevo_estado_inicial, '𝜀', nuevo_estado_grupo_anterior_inicial))
-                transiciones.append((nuevo_estado_grupo_anterior_inicial, ultimaTransition[1], nuevo_estado_grupo_anterior_final))
-                transiciones.append((nuevo_estado_grupo_anterior_inicial, penUltimaTransition[1], nuevo_estado_grupo_anterior_final))
+                transiciones.append(
+                    (nuevo_estado_grupo_anterior_inicial, ultimaTransition[1], nuevo_estado_grupo_anterior_final))
+                transiciones.append(
+                    (nuevo_estado_grupo_anterior_inicial, penUltimaTransition[1], nuevo_estado_grupo_anterior_final))
                 transiciones.append((nuevo_estado_grupo_anterior_final, '𝜀', nuevo_estado_grupo_anterior_inicial))
                 transiciones.append((nuevo_estado_grupo_anterior_final, '𝜀', nuevo_estado_final))
 
@@ -186,9 +195,9 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
                 transiciones.append((nuevo_estado_inicial, oper, nuevo_estado_final))
 
-        l += 1
+        linea += 1
 
-    estados_aceptacion.add(estados[-1])
+    estados_aceptacion.append(estados[-1])
 
     with open(output_text_file, 'w', encoding='utf-8') as file:
         file.write(f"ESTADOS = {{{', '.join(map(str, estados))}}}\n")
@@ -198,16 +207,71 @@ def test_thompson_to_text_prueba(expr, output_text_file):
         transiciones_str = ', '.join([f"({t[0]}, {t[1]}, {t[2]})" for t in transiciones])
         file.write(f"TRANSICIONES = {{{transiciones_str}}}\n")
 
+    return estados, alfabeto, transiciones, estado_inicial, estados_aceptacion
+
+
+def simulacion_afd(afd, cadena):
+    estados = afd[0]
+    alfabeto = afd[1]
+    transiciones = afd[2]
+    estado_inicial = afd[3]
+    estados_aceptacion = afd[4][0]
+
+    mensajeError = "No cumple con el lenguaje"
+    mensajeAprobacion = "Cumple con el lenguaje"
+
+    for cad in cadena:
+        if cad not in alfabeto:
+            return mensajeError
+
+    estado_actual = estado_inicial
+    veces = 0
+    numCadena = 0
+    cad = cadena[numCadena]
+    for tran in transiciones:
+        if estado_actual < tran[0]:
+            return mensajeError
+
+        elif estado_actual == tran[0] and tran[1] == '𝜀':
+            estado_actual = tran[2]
+
+        else:
+            if estado_actual == tran[0] and cad == tran[1]:
+                estado_actual = tran[2]
+                if numCadena != len(cadena) - 1:
+                    numCadena += 1
+                    cad = cadena[numCadena]
+                else:
+                    estado_actual += 1
+                    continue
+            else:
+                estado_actual += 1
+
+    print("numcadena")
+    print(numCadena)
+    print("cadena")
+    print(len(cadena))
+    print(estado_actual == estados_aceptacion)
+    print(numCadena == len(cadena) - 1)
+    if estado_actual == estados_aceptacion and numCadena == len(cadena) - 1:
+        return mensajeAprobacion
+    else:
+        return mensajeError
+
 
 def main():
-    infix_regex = "(1|0)*(011*)(0|𝜀)"
+    infix_regex = "abba"
+    cadena = "abba"
+
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
 
     # Ejemplo de uso con expresión en notación postfix
     output_text_file = "afn.txt"
-    test_thompson_to_text_prueba(postfix_regex, output_text_file)
+    afn = test_thompson_to_text_prueba(postfix_regex, output_text_file)
     print(f"Descripción del AFN guardada en '{output_text_file}'")
+
+    # print(simulacion_afd(afd, cadena))
 
 
 main()
