@@ -213,8 +213,55 @@ def test_thompson_to_text_prueba(expr, output_text_file):
     return estados, alfabeto, transiciones, estado_inicial, estados_aceptacion
 
 
-def simulacion_afd(afd, cadena):
-    estados = afd[0]
+# def simulacion_afd(afd, cadena):
+#     estados = afd[0]
+#     alfabeto = afd[1]
+#     transiciones = afd[2]
+#     estado_inicial = afd[3]
+#     estados_aceptacion = afd[4]
+#
+#     mensajeError = "No cumple con el lenguaje"
+#     mensajeAprobacion = "Cumple con el lenguaje"
+#
+#
+#     for cad in cadena:
+#         if cad not in alfabeto:
+#             return mensajeError
+#
+#     estado_actual = estado_inicial
+#     veces = 0
+#     numCadena = 0
+#     cad = "null"
+#     if len(cadena) != 0:
+#         cad = cadena[numCadena]
+#         for tran in transiciones:
+#             # if estados.index(estado_actual) < estados.index(tran[0]):
+#             #     return mensajeError
+#             if tran[0] == tran[2] and transiciones.index(tran) < len(transiciones) - 1 and tran[0] != transiciones[transiciones.index(tran) + 1][0] and tran[2] != transiciones[transiciones.index(tran) + 1][2]:
+#                 while numCadena < len(cadena) - 1 and cadena[numCadena + 1] == tran[1]:
+#                     numCadena += 1
+#                     cad = cadena[numCadena]
+#                 continue
+#             else:
+#                 if estados.index(estado_actual) == estados.index(tran[0]) and cad == tran[1]:
+#                     estado_actual = tran[2]
+#                     if numCadena != len(cadena) - 1:
+#                         numCadena += 1
+#                         cad = cadena[numCadena]
+#                     else:
+#                         if estados[estados.index(estado_actual)] == len(estados) - 1:
+#                             estado_actual = estados[estados.index(estado_actual) + 1]
+#                             continue
+#                 else:
+#                     if estados[estados.index(estado_actual)] == len(estados) - 1:
+#                         estado_actual = estados[estados.index(estado_actual) + 1]
+#
+#     if estado_actual in estados_aceptacion:
+#         return mensajeAprobacion
+#     else:
+#         return mensajeError
+
+def simulacion2(afd, cadena):
     alfabeto = afd[1]
     transiciones = afd[2]
     estado_inicial = afd[3]
@@ -223,46 +270,31 @@ def simulacion_afd(afd, cadena):
     mensajeError = "No cumple con el lenguaje"
     mensajeAprobacion = "Cumple con el lenguaje"
 
-
     for cad in cadena:
         if cad not in alfabeto:
             return mensajeError
 
     estado_actual = estado_inicial
-    veces = 0
-    numCadena = 0
-    cad = "null"
     if len(cadena) != 0:
-        cad = cadena[numCadena]
-
-        for tran in transiciones:
-
-            if estados.index(estado_actual) < estados.index(tran[0]):
-                return mensajeError
-
-            else:
-                if estados.index(estado_actual) == estados.index(tran[0]) and cad == tran[1]:
+        for cad in cadena:
+            pasa = False
+            for tran in transiciones:
+                if estado_actual == tran[0] and cad == tran[1]:
+                    print(tran)
                     estado_actual = tran[2]
-                    if numCadena != len(cadena) - 1:
-                        numCadena += 1
-                        cad = cadena[numCadena]
-                    else:
-                        if estados[estados.index(estado_actual)] == len(estados) - 1:
-                            estado_actual = estados[estados.index(estado_actual) + 1]
-                            continue
-                else:
-                    if estados[estados.index(estado_actual)] == len(estados) - 1:
-                        estado_actual = estados[estados.index(estado_actual) + 1]
+                    pasa = True
+                    break
+            if pasa == False:
+                return mensajeError
 
     if estado_actual in estados_aceptacion:
         return mensajeAprobacion
     else:
         return mensajeError
 
-
 def main():
-    infix_regex = "(a|b)*aabb"
-    cadena = "ababaabb"
+    infix_regex = "(a|b)"
+    cadena = "ba"
 
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
@@ -280,7 +312,7 @@ def main():
 
     afd = dfn.exec(estados, alfabeto, estado_inicial, estados_aceptacion, transiciones)
 
-    print(simulacion_afd(afd, cadena))
-
+    # print(simulacion_afd(afd, cadena))
+    print(simulacion2(afd, cadena))
 
 main()
