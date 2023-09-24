@@ -1,3 +1,6 @@
+import nfa_to_dfa as dfn
+import dfa_minimization as min
+
 def check_conca(token, regex, i):
     if token not in "(|*) " and i + 1 < len(regex) and regex[i + 1] not in "(|*) ":
         # Concatenación encontrada, agregamos los caracteres juntos
@@ -101,7 +104,8 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                     alfabeto.remove(carac)
                     alfabeto.append(carac)
                 else:
-                    alfabeto.append(carac)
+                    if carac != '*':
+                        alfabeto.append(carac)
 
         elif carac == '|':
             if stri[b - 1] == carac:
@@ -168,11 +172,10 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 estados.append(nuevo_estado_grupo_anterior_final)
                 estados.append(nuevo_estado_final)
 
+                transiciones.append((nuevo_estado_inicial, '𝜀', nuevo_estado_final))
                 transiciones.append((nuevo_estado_inicial, '𝜀', nuevo_estado_grupo_anterior_inicial))
-                transiciones.append(
-                    (nuevo_estado_grupo_anterior_inicial, ultimaTransition[1], nuevo_estado_grupo_anterior_final))
-                transiciones.append(
-                    (nuevo_estado_grupo_anterior_inicial, penUltimaTransition[1], nuevo_estado_grupo_anterior_final))
+                transiciones.append((nuevo_estado_grupo_anterior_inicial, ultimaTransition[1], nuevo_estado_grupo_anterior_final))
+                transiciones.append((nuevo_estado_grupo_anterior_inicial, penUltimaTransition[1], nuevo_estado_grupo_anterior_final))
                 transiciones.append((nuevo_estado_grupo_anterior_final, '𝜀', nuevo_estado_grupo_anterior_inicial))
                 transiciones.append((nuevo_estado_grupo_anterior_final, '𝜀', nuevo_estado_final))
 
@@ -215,10 +218,11 @@ def simulacion_afd(afd, cadena):
     alfabeto = afd[1]
     transiciones = afd[2]
     estado_inicial = afd[3]
-    estados_aceptacion = afd[4][0]
+    estados_aceptacion = afd[4]
 
     mensajeError = "No cumple con el lenguaje"
     mensajeAprobacion = "Cumple con el lenguaje"
+
 
     for cad in cadena:
         if cad not in alfabeto:
@@ -227,41 +231,38 @@ def simulacion_afd(afd, cadena):
     estado_actual = estado_inicial
     veces = 0
     numCadena = 0
-    cad = cadena[numCadena]
-    for tran in transiciones:
-        if estado_actual < tran[0]:
-            return mensajeError
+    cad = "null"
+    if len(cadena) != 0:
+        cad = cadena[numCadena]
 
-        elif estado_actual == tran[0] and tran[1] == '𝜀':
-            estado_actual = tran[2]
+        for tran in transiciones:
 
-        else:
-            if estado_actual == tran[0] and cad == tran[1]:
-                estado_actual = tran[2]
-                if numCadena != len(cadena) - 1:
-                    numCadena += 1
-                    cad = cadena[numCadena]
-                else:
-                    estado_actual += 1
-                    continue
+            if estados.index(estado_actual) < estados.index(tran[0]):
+                return mensajeError
+
             else:
-                estado_actual += 1
+                if estados.index(estado_actual) == estados.index(tran[0]) and cad == tran[1]:
+                    estado_actual = tran[2]
+                    if numCadena != len(cadena) - 1:
+                        numCadena += 1
+                        cad = cadena[numCadena]
+                    else:
+                        if estados[estados.index(estado_actual)] == len(estados) - 1:
+                            estado_actual = estados[estados.index(estado_actual) + 1]
+                            continue
+                else:
+                    if estados[estados.index(estado_actual)] == len(estados) - 1:
+                        estado_actual = estados[estados.index(estado_actual) + 1]
 
-    print("numcadena")
-    print(numCadena)
-    print("cadena")
-    print(len(cadena))
-    print(estado_actual == estados_aceptacion)
-    print(numCadena == len(cadena) - 1)
-    if estado_actual == estados_aceptacion and numCadena == len(cadena) - 1:
+    if estado_actual in estados_aceptacion:
         return mensajeAprobacion
     else:
         return mensajeError
 
 
 def main():
-    infix_regex = "abba"
-    cadena = "abba"
+    infix_regex = "(a|b)*aabb"
+    cadena = "ababaabb"
 
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
@@ -271,7 +272,15 @@ def main():
     afn = test_thompson_to_text_prueba(postfix_regex, output_text_file)
     print(f"Descripción del AFN guardada en '{output_text_file}'")
 
-    # print(simulacion_afd(afd, cadena))
+    estados = set(afn[0])
+    alfabeto = set(afn[1])
+    transiciones = set(afn[2])
+    estado_inicial = {afn[3]}
+    estados_aceptacion = {afn[4][0]}
+
+    afd = dfn.exec(estados, alfabeto, estado_inicial, estados_aceptacion, transiciones)
+
+    print(simulacion_afd(afd, cadena))
 
 
 main()
