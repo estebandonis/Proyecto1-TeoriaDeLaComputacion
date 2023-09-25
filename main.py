@@ -213,62 +213,14 @@ def test_thompson_to_text_prueba(expr, output_text_file):
     return estados, alfabeto, transiciones, estado_inicial, estados_aceptacion
 
 
-# def simulacion_afd(afd, cadena):
-#     estados = afd[0]
-#     alfabeto = afd[1]
-#     transiciones = afd[2]
-#     estado_inicial = afd[3]
-#     estados_aceptacion = afd[4]
-#
-#     mensajeError = "No cumple con el lenguaje"
-#     mensajeAprobacion = "Cumple con el lenguaje"
-#
-#
-#     for cad in cadena:
-#         if cad not in alfabeto:
-#             return mensajeError
-#
-#     estado_actual = estado_inicial
-#     veces = 0
-#     numCadena = 0
-#     cad = "null"
-#     if len(cadena) != 0:
-#         cad = cadena[numCadena]
-#         for tran in transiciones:
-#             # if estados.index(estado_actual) < estados.index(tran[0]):
-#             #     return mensajeError
-#             if tran[0] == tran[2] and transiciones.index(tran) < len(transiciones) - 1 and tran[0] != transiciones[transiciones.index(tran) + 1][0] and tran[2] != transiciones[transiciones.index(tran) + 1][2]:
-#                 while numCadena < len(cadena) - 1 and cadena[numCadena + 1] == tran[1]:
-#                     numCadena += 1
-#                     cad = cadena[numCadena]
-#                 continue
-#             else:
-#                 if estados.index(estado_actual) == estados.index(tran[0]) and cad == tran[1]:
-#                     estado_actual = tran[2]
-#                     if numCadena != len(cadena) - 1:
-#                         numCadena += 1
-#                         cad = cadena[numCadena]
-#                     else:
-#                         if estados[estados.index(estado_actual)] == len(estados) - 1:
-#                             estado_actual = estados[estados.index(estado_actual) + 1]
-#                             continue
-#                 else:
-#                     if estados[estados.index(estado_actual)] == len(estados) - 1:
-#                         estado_actual = estados[estados.index(estado_actual) + 1]
-#
-#     if estado_actual in estados_aceptacion:
-#         return mensajeAprobacion
-#     else:
-#         return mensajeError
-
-def simulacion2(afd, cadena):
+def simulacion_afd(afd, cadena):
     alfabeto = afd[1]
     transiciones = afd[2]
     estado_inicial = afd[3]
     estados_aceptacion = afd[4]
 
-    mensajeError = "No cumple con el lenguaje"
-    mensajeAprobacion = "Cumple con el lenguaje"
+    mensajeError = "La cadena no cumple con el lenguaje"
+    mensajeAprobacion = "La cadena cumple con el lenguaje"
 
     for cad in cadena:
         if cad not in alfabeto:
@@ -292,9 +244,10 @@ def simulacion2(afd, cadena):
     else:
         return mensajeError
 
+
 def main():
-    infix_regex = "(a|b)"
-    cadena = "ba"
+    infix_regex = "a"
+    cadena = "a"
 
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
@@ -304,15 +257,45 @@ def main():
     afn = test_thompson_to_text_prueba(postfix_regex, output_text_file)
     print(f"Descripción del AFN guardada en '{output_text_file}'")
 
-    estados = set(afn[0])
-    alfabeto = set(afn[1])
-    transiciones = set(afn[2])
+    estados = afn[0]
+    alfabeto = afn[1]
+    transiciones = afn[2]
     estado_inicial = {afn[3]}
     estados_aceptacion = {afn[4][0]}
 
     afd = dfn.exec(estados, alfabeto, estado_inicial, estados_aceptacion, transiciones)
 
-    # print(simulacion_afd(afd, cadena))
-    print(simulacion2(afd, cadena))
+    print("AFD:")
+    print(simulacion_afd(afd, cadena))
+
+    estadosTempo = afd[0]
+    alfabetoTempo = afd[1]
+    transicionesTempo = afd[2]
+    estado_inicialTempo = afd[3]
+    estado_inicialAFD = {str(estado_inicialTempo)}
+    estados_aceptacionTempo = afd[4][0]
+    estados_aceptacionAFD = {str(estados_aceptacionTempo)}
+
+    estadosAFD = set()
+    for i in estadosTempo:
+        estadosAFD.add(str(i))
+
+    alfabetoAFD = set()
+    for i in alfabetoTempo:
+        alfabetoAFD.add(str(i))
+
+    transicionesAFD = set()
+    for tran in transicionesTempo:
+        trans = ()
+        for t in tran:
+            trans = trans + (str(t),)
+        transicionesAFD.add(trans)
+
+    afdMin = list(min.main(estadosAFD, alfabetoAFD, transicionesAFD, estado_inicialAFD, estados_aceptacionAFD))
+    afdMin[3] = afdMin[3][0]
+    afdMin[4] = afdMin[4][0]
+
+    print("AFD Minimal:")
+    print(simulacion_afd(afdMin, cadena))
 
 main()

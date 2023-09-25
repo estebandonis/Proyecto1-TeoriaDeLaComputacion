@@ -84,25 +84,6 @@ def write_info_to_file(states, final_states, transitions, symbols, start_state, 
         file.write("Inicio = " + str(start_state) + "\n")
 
 def exec(estados, simbolos, estados_inicial, estados_aceptacion, transiciones):
-    # symbols = {"a", "b"}
-    # start_state = {1}
-    #
-    # dfa_states, acceptance_states, dfa_transitions, start_state = dfa_to_nfa(
-    #     {1, 2, 3, 4, 5},
-    #     symbols,
-    #     start_state,
-    #     {5},
-    #     {
-    #         (1, "lamda", 2),
-    #         (1, "a", 3),
-    #         (2, "a", 4),
-    #         (2, "a", 5),
-    #         (3, "b", 4),
-    #         (4, "a", 5),
-    #         (4, "b", 5),
-    #     },
-    # )
-
     symbols = simbolos
     start_state = estados_inicial
 

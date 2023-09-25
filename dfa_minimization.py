@@ -1,6 +1,7 @@
 import pandas as pd
 import pydotplus
 
+
 def create_dfa_graph(states, acceptance_states, transitions, symbols, start_state):
     # Convert sets to strings
     states = [str(state) for state in states]
@@ -60,24 +61,13 @@ def merge_equivalent_pairs(equivalent_pairs):
     return [''.join(sorted(list(merged_state))) for merged_state in merged_states]
 
 
-def main(estados, estado_inicial, estados_final, symbols, transitions):
-    states = {'0', '1', '2', '3', '4', '5'}
-    start_state = {'0'}
-    final_states = {'1', '2', '5'}
-    symbols = {'a', 'b'}
+def main(states, symbols, transitions, start_state, final_states):
+    states = {'{0}', '{1}'}
+    start_state = {'{0}'}
+    final_states = {'{1}'}
+    symbols = {'a'}
     transitions = {
-        ('0', 'a', '1'),
-        ('0', 'b', '2'),
-        ('1', 'a', '3'),
-        ('1', 'b', '4'),
-        ('2', 'a', '4'),
-        ('2', 'b', '3'),
-        ('3', 'a', '5'),
-        ('3', 'b', '5'),
-        ('4', 'a', '5'),
-        ('4', 'b', '5'),
-        ('5', 'a', '5'),
-        ('5', 'b', '5')
+        ('{0}', 'a', '{1}')
     }
 
     # Initialize the table with all pairs of states
@@ -86,7 +76,7 @@ def main(estados, estado_inicial, estados_final, symbols, transitions):
     # For each pair (p, q), mark it if p ∈ F and q ∉ F
     for p in states:
         for q in states:
-            if (p == q):
+            if p == q:
                 table.at[p, q] = '0'
             if (p in final_states) ^ (q in final_states):
                 table.at[p, q] = 'X'
@@ -170,18 +160,16 @@ def main(estados, estado_inicial, estados_final, symbols, transitions):
     # Print the new transitions
     print("New Transitions:", set(new_transitions))
 
-    pydotplus.find_graphviz()
+    return new_states, symbols, new_transitions, list(start_state), list(final_states)
+    # pydotplus.find_graphviz()
+    #
+    # graph = create_dfa_graph(new_states, final_states,
+    #                          new_transitions, symbols, start_state)
+    #
+    # # Save or display the graph
+    # dot_file_path = "dfa_graph_minimized.dot"
+    # png_file_path = "dfa_graph_minimized.png"
+    # graph.write(dot_file_path, format="dot")  # Save DOT file
+    # graph.write_png(png_file_path)  # Save PNG file
+    # graph.write_svg("dfa_graph_minimized.svg")  # Save SVG file
 
-    graph = create_dfa_graph(new_states, final_states,
-                             new_transitions, symbols, start_state)
-
-    # Save or display the graph
-    dot_file_path = "dfa_graph_minimized.dot"
-    png_file_path = "dfa_graph_minimized.png"
-    graph.write(dot_file_path, format="dot")  # Save DOT file
-    graph.write_png(png_file_path)  # Save PNG file
-    graph.write_svg("dfa_graph_minimized.svg")  # Save SVG file
-
-
-if __name__ == "__main__":
-    main()

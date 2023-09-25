@@ -1,5 +1,0 @@
-Estados = [{0}, {1}]
-Aceptacion = [{1}]
-Transicion = [({0}, 'b', {1}), ({0}, 'a', {1})]
-Simbolos = {'b', 'a'}
-Inicio = {0}
