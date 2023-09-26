@@ -60,6 +60,13 @@ def merge_equivalent_pairs(equivalent_pairs):
 
     return [''.join(sorted(list(merged_state))) for merged_state in merged_states]
 
+def write_minimized_dfa_info_to_file(states, final_states, transitions, symbols, start_state, minimized_final_states, file_path):
+    with open(file_path, 'w') as file:
+        file.write("Estados = " + str(states) + "\n")
+        file.write("Aceptacion = " + str(minimized_final_states) + "\n")
+        file.write("Transicion = " + str(transitions) + "\n")
+        file.write("Simbolos = " + str(symbols) + "\n")
+        file.write("Inicio = " + str(start_state) + "\n")
 
 def main(states, symbols, transitions, start_state, final_states):
     # states = {'{0}', '{1}'}
@@ -175,6 +182,7 @@ def main(states, symbols, transitions, start_state, final_states):
     graph.write(dot_file_path, format="dot")  # Save DOT file
     graph.write_png(png_file_path)  # Save PNG file
     graph.write_svg("dfa_graph_minimized.svg")  # Save SVG file
+    
 
     newStart_states = []
 
@@ -189,5 +197,8 @@ def main(states, symbols, transitions, start_state, final_states):
             if str(i) in str(state):
                 if state not in newFinal_states:
                     newFinal_states.append(state)
+    
+    write_minimized_dfa_info_to_file(
+        new_states, final_states, new_transitions, symbols, newStart_states[0], newFinal_states, "minimized_dfa_info.txt")
 
     return new_states, symbols, new_transitions, newStart_states[0], newFinal_states
