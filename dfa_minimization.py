@@ -62,13 +62,17 @@ def merge_equivalent_pairs(equivalent_pairs):
 
 
 def main(states, symbols, transitions, start_state, final_states):
-    states = {'{0}', '{1}'}
-    start_state = {'{0}'}
-    final_states = {'{1}'}
-    symbols = {'a'}
-    transitions = {
-        ('{0}', 'a', '{1}')
-    }
+    # states = {'{0}', '{1}'}
+    # start_state = {'{0}'}
+    # final_states = {'{1}'}
+    # symbols = {'a'}
+    # transitions = {
+    #     ('{0}', 'a', '{1}')
+    # }
+
+    # copy the value of a set to another set
+    start_stSet = start_state.copy()
+    start_st = start_stSet.pop()
 
     # Initialize the table with all pairs of states
     table = pd.DataFrame(index=list(states), columns=list(states), data='')
@@ -99,6 +103,8 @@ def main(states, symbols, transitions, start_state, final_states):
                                     p_next = transition[2]
                                 if transition[0] == q and transition[1] == symbol:
                                     q_next = transition[2]
+                            if p_next == None or q_next == None:
+                                continue
                             if table.at[p_next, q_next] == 'X':
                                 distinguishable = True
                                 break
@@ -138,8 +144,6 @@ def main(states, symbols, transitions, start_state, final_states):
 
     new_states.update(merged_states)
 
-    print(new_states)
-
     # Initialize a list to store the new transitions
     new_transitions = []
 
@@ -160,16 +164,30 @@ def main(states, symbols, transitions, start_state, final_states):
     # Print the new transitions
     print("New Transitions:", set(new_transitions))
 
-    return new_states, symbols, new_transitions, list(start_state), list(final_states)
-    # pydotplus.find_graphviz()
-    #
-    # graph = create_dfa_graph(new_states, final_states,
-    #                          new_transitions, symbols, start_state)
-    #
-    # # Save or display the graph
-    # dot_file_path = "dfa_graph_minimized.dot"
-    # png_file_path = "dfa_graph_minimized.png"
-    # graph.write(dot_file_path, format="dot")  # Save DOT file
-    # graph.write_png(png_file_path)  # Save PNG file
-    # graph.write_svg("dfa_graph_minimized.svg")  # Save SVG file
+    pydotplus.find_graphviz()
 
+    graph = create_dfa_graph(new_states, final_states,
+                             new_transitions, symbols, start_state)
+
+    # Save or display the graph
+    dot_file_path = "dfa_graph_minimized.dot"
+    png_file_path = "dfa_graph_minimized.png"
+    graph.write(dot_file_path, format="dot")  # Save DOT file
+    graph.write_png(png_file_path)  # Save PNG file
+    graph.write_svg("dfa_graph_minimized.svg")  # Save SVG file
+
+    newStart_states = []
+
+    for state in new_states:
+        if str(start_st) in str(state):
+            newStart_states.append(state)
+
+    newFinal_states = []
+
+    for state in new_states:
+        for i in final_states:
+            if str(i) in str(state):
+                if state not in newFinal_states:
+                    newFinal_states.append(state)
+
+    return new_states, symbols, new_transitions, newStart_states[0], newFinal_states

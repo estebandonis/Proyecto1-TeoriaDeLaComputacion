@@ -246,8 +246,8 @@ def simulacion_afd(afd, cadena):
 
 
 def main():
-    infix_regex = "a"
-    cadena = "a"
+    infix_regex = "(b|b)*abb(a|b)*"
+    cadena = "abb"
 
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
@@ -273,8 +273,7 @@ def main():
     transicionesTempo = afd[2]
     estado_inicialTempo = afd[3]
     estado_inicialAFD = {str(estado_inicialTempo)}
-    estados_aceptacionTempo = afd[4][0]
-    estados_aceptacionAFD = {str(estados_aceptacionTempo)}
+    estados_aceptacionTempo = afd[4]
 
     estadosAFD = set()
     for i in estadosTempo:
@@ -291,9 +290,12 @@ def main():
             trans = trans + (str(t),)
         transicionesAFD.add(trans)
 
+    estados_aceptacionAFD = set()
+    for i in estados_aceptacionTempo:
+        estados_aceptacionAFD.add(str(i))
+
+
     afdMin = list(min.main(estadosAFD, alfabetoAFD, transicionesAFD, estado_inicialAFD, estados_aceptacionAFD))
-    afdMin[3] = afdMin[3][0]
-    afdMin[4] = afdMin[4][0]
 
     print("AFD Minimal:")
     print(simulacion_afd(afdMin, cadena))
