@@ -1,4 +1,13 @@
 afn.txt
 dfa_info.txt
+dfa_graph_minimized.dot
+dfa_graph_minimized.png
+dfa_graph_minimized.svg
+dfa_graph.dot
+dfa_graph.png
+dfa_graph.svg
+dfn_graph.dot
+dfn_graph.png
+dfn_graph.svg
 .idea
 __pycache__/

@@ -1,5 +1,6 @@
 import nfa_to_dfa as dfn
 import dfa_minimization as min
+import pydotplus
 
 def check_conca(token, regex, i):
     if token not in "(|*) " and i + 1 < len(regex) and regex[i + 1] not in "(|*) ":
@@ -60,6 +61,40 @@ def shunting_yard_regex(regex):
 
     return ' '.join(operandos)
 
+
+def create_dfn_graph(states, acceptance_states, transitions, symbols, start_state):
+    # Convert sets to strings
+    states = [str(state) for state in states]
+    start_state = str(start_state)
+    acceptance_states = [str(state) for state in acceptance_states]
+
+    # Create a DOT format representation of the DFA
+    dot = pydotplus.Dot()
+    dot.set_rankdir("LR")  # Use 'TB' for top to bottom layout
+    dot.set_prog("neato")
+
+    # Create nodes for each state
+    state_nodes = {}
+    for state in states:
+        node = pydotplus.Node(state)
+        if state == start_state:
+            node.set_shape("circle")
+            node.set_style("filled")
+
+        if state in acceptance_states:
+            node.set_shape("doublecircle")  # Final states are double circled
+        node.set_fontsize(12)  # Set font size
+        node.set_width(0.6)  # Set the desired width
+        node.set_height(0.6)  # Set the desired height
+        state_nodes[state] = node
+        dot.add_node(node)
+
+    # Add transitions as edges
+    for (source, symbol, target) in transitions:
+        edge = pydotplus.Edge(state_nodes[str(source)], state_nodes[str(target)], label=symbol)
+        dot.add_edge(edge)
+
+    return dot
 
 def test_thompson_to_text_prueba(expr, output_text_file):
     contadorEstados = 0
@@ -210,6 +245,17 @@ def test_thompson_to_text_prueba(expr, output_text_file):
         transiciones_str = ', '.join([f"({t[0]}, {t[1]}, {t[2]})" for t in transiciones])
         file.write(f"TRANSICIONES = {{{transiciones_str}}}\n")
 
+    pydotplus.find_graphviz()
+
+    graph = create_dfn_graph(estados, estados_aceptacion, transiciones, alfabeto, estado_inicial)
+
+    # Save or display the graph
+    dot_file_path = "dfn_graph.dot"
+    png_file_path = "dfn_graph.png"
+    graph.write(dot_file_path, format="dot")  # Save DOT file
+    graph.write_png(png_file_path)  # Save PNG file
+    graph.write_svg("dfn_graph.svg")  # Save SVG file
+
     return estados, alfabeto, transiciones, estado_inicial, estados_aceptacion
 
 
@@ -265,7 +311,7 @@ def main():
 
     afd = dfn.exec(estados, alfabeto, estado_inicial, estados_aceptacion, transiciones)
 
-    print("AFD:")
+    print("Simulación AFD:")
     print(simulacion_afd(afd, cadena))
 
     estadosTempo = afd[0]
@@ -297,7 +343,7 @@ def main():
 
     afdMin = list(min.main(estadosAFD, alfabetoAFD, transicionesAFD, estado_inicialAFD, estados_aceptacionAFD))
 
-    print("AFD Minimal:")
+    print("Simulación AFD Minimal:")
     print(simulacion_afd(afdMin, cadena))
 
 main()
