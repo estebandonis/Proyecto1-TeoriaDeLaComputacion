@@ -311,8 +311,12 @@ def main():
 
     afd = dfn.exec(estados, alfabeto, estado_inicial, estados_aceptacion, transiciones)
 
+    print()
     print("Simulación AFD:")
     print(simulacion_afd(afd, cadena))
+    print()
+
+    print("AFD Minimal:")
 
     estadosTempo = afd[0]
     alfabetoTempo = afd[1]
@@ -343,6 +347,7 @@ def main():
 
     afdMin = list(min.main(estadosAFD, alfabetoAFD, transicionesAFD, estado_inicialAFD, estados_aceptacionAFD))
 
+    print()
     print("Simulación AFD Minimal:")
     print(simulacion_afd(afdMin, cadena))
 
