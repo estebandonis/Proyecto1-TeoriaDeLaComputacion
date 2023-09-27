@@ -36,8 +36,13 @@ def shunting_yard_regex(regex):
                     i += 1
 
                 string = ''
+                first = False
                 for letra in lista:
-                    string += letra
+                    if not first:
+                        string += letra
+                        first = True
+                    else:
+                        string += letra + "."
 
                 operandos.append(string)
 
@@ -218,7 +223,9 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
         else:
             for oper in group:
-                if contadorEstados == 0:
+                if oper == '.':
+                    continue
+                elif contadorEstados == 0:
                     nuevo_estado_inicial = contadorEstados
                     nuevo_estado_final = contadorEstados + 1
                     estados.append(nuevo_estado_inicial)
