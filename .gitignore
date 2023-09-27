@@ -1,5 +1,6 @@
 afn.txt
 dfa_info.txt
+minimized_dfa_info.txt
 dfa_graph_minimized.dot
 dfa_graph_minimized.png
 dfa_graph_minimized.svg

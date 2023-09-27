@@ -168,20 +168,17 @@ def main(states, symbols, transitions, start_state, final_states):
     # Convert the list of new transitions to a set to remove duplicates
     new_transitions = list(set(new_transitions))
 
-    # Print the new transitions
-    print("New Transitions:", set(new_transitions))
-
     pydotplus.find_graphviz()
 
     graph = create_dfa_graph(new_states, final_states,
                              new_transitions, symbols, start_state)
 
     # Save or display the graph
-    dot_file_path = "dfa_graph_minimized.dot"
-    png_file_path = "dfa_graph_minimized.png"
+    dot_file_path = "pngs/dfa_graph_minimized.dot"
+    png_file_path = "pngs/dfa_graph_minimized.png"
     graph.write(dot_file_path, format="dot")  # Save DOT file
     graph.write_png(png_file_path)  # Save PNG file
-    graph.write_svg("dfa_graph_minimized.svg")  # Save SVG file
+    graph.write_svg("pngs/dfa_graph_minimized.svg")  # Save SVG file
     
 
     newStart_states = []
@@ -199,6 +196,6 @@ def main(states, symbols, transitions, start_state, final_states):
                     newFinal_states.append(state)
     
     write_minimized_dfa_info_to_file(
-        new_states, final_states, new_transitions, symbols, newStart_states[0], newFinal_states, "minimized_dfa_info.txt")
+        new_states, final_states, new_transitions, symbols, newStart_states[0], newFinal_states, "texts/minimized_dfa_info.txt")
 
     return new_states, symbols, new_transitions, newStart_states[0], newFinal_states

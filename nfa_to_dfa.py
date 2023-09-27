@@ -109,17 +109,17 @@ def exec(estados, simbolos, estados_inicial, estados_aceptacion, transiciones):
     transitions = dfa_transitions
 
     # Write information to a text file
-    write_info_to_file(states, final_states, transitions, symbols, start_state, "dfa_info.txt")
+    write_info_to_file(states, final_states, transitions, symbols, start_state, "texts/dfa_info.txt")
 
     pydotplus.find_graphviz()
 
     graph = create_dfa_graph(states, final_states, transitions, symbols, start_state)
 
     # Save or display the graph
-    dot_file_path = "dfa_graph.dot"
-    png_file_path = "dfa_graph.png"
+    dot_file_path = "pngs/dfa_graph.dot"
+    png_file_path = "pngs/dfa_graph.png"
     graph.write(dot_file_path, format="dot")  # Save DOT file
     graph.write_png(png_file_path)  # Save PNG file
-    graph.write_svg("dfa_graph.svg")  # Save SVG file
+    graph.write_svg("pngs/dfa_graph.svg")  # Save SVG file
 
     return states, symbols, transitions, start_state, final_states

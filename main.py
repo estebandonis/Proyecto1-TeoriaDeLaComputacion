@@ -250,11 +250,11 @@ def test_thompson_to_text_prueba(expr, output_text_file):
     graph = create_dfn_graph(estados, estados_aceptacion, transiciones, alfabeto, estado_inicial)
 
     # Save or display the graph
-    dot_file_path = "dfn_graph.dot"
-    png_file_path = "dfn_graph.png"
+    dot_file_path = "pngs/dfn_graph.dot"
+    png_file_path = "pngs/dfn_graph.png"
     graph.write(dot_file_path, format="dot")  # Save DOT file
     graph.write_png(png_file_path)  # Save PNG file
-    graph.write_svg("dfn_graph.svg")  # Save SVG file
+    graph.write_svg("pngs/dfn_graph.svg")  # Save SVG file
 
     return estados, alfabeto, transiciones, estado_inicial, estados_aceptacion
 
@@ -299,7 +299,7 @@ def main():
     print("Cadena convertida a postfix: " + postfix_regex)
 
     # Ejemplo de uso con expresión en notación postfix
-    output_text_file = "afn.txt"
+    output_text_file = "texts/afn.txt"
     afn = test_thompson_to_text_prueba(postfix_regex, output_text_file)
     print(f"Descripción del AFN guardada en '{output_text_file}'")
 
