@@ -57,6 +57,7 @@ def create_dfa_graph(states, acceptance_states, transitions, symbols, start_stat
     for state in states:
         node = pydotplus.Node(state)
         if state == start_state:
+            node.set_name("Start")
             node.set_shape("circle")
             node.set_style("filled")
 

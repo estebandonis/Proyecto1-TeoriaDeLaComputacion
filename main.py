@@ -23,7 +23,7 @@ def shunting_yard_regex(regex):
     i = 0
     while i < len(regex):
         token = regex[i]
-        if token not in "(|) ":
+        if token not in "(|*) ":
 
             a = check_conca(token, regex, i)
             if a != i:
@@ -51,7 +51,14 @@ def shunting_yard_regex(regex):
         elif token in "|*":
             while operadores and operadores[-1] in "|*" and precedencia[operadores[-1]] >= precedencia[token]:
                 operandos.append(operadores.pop())
-            operadores.append(token)
+            if token == '*':
+                operandos.append(".")
+                operandos.append(token)
+                operandos.append(".")
+            else:
+                operandos.append(regex[i + 1])
+                operandos.append(token)
+                i += 1
         elif token == '(':
             operadores.append(token)
         elif token == ')':
@@ -83,6 +90,7 @@ def create_dfn_graph(states, acceptance_states, transitions, symbols, start_stat
     for state in states:
         node = pydotplus.Node(state)
         if state == start_state:
+            node.set_name("Start")
             node.set_shape("circle")
             node.set_style("filled")
 
@@ -117,8 +125,12 @@ def test_thompson_to_text_prueba(expr, output_text_file):
     b = 0
     while b < len(stri):
         carac = stri[b]
-        if carac not in "(|) ":
+        if carac == '.':
+            b += 1
+            continue
+        elif carac not in "(|) ":
             if len(carac) > 1:
+                print(carac)
                 for s in carac:
                     if s in alfabeto:
                         alfabeto.remove(s)
@@ -151,7 +163,9 @@ def test_thompson_to_text_prueba(expr, output_text_file):
             if stri[b - 1] == carac:
                 grupos.append(carac)
             else:
-                grupos.append([alfabeto[len(alfabeto) - 2], alfabeto[len(alfabeto) - 1], carac])
+                # grupos.append([alfabeto[len(alfabeto) - 2], alfabeto[len(alfabeto) - 1], carac])
+                grupos.append([stri[b - 2], stri[b - 1], carac])
+                b += 1
 
         elif carac == '*':
             grupos.append(carac)
@@ -299,16 +313,22 @@ def simulacion_afd(afd, cadena):
 
 
 def main():
+    # infix_regex = "0*1|1*0"
+    # cadena = "001"
     infix_regex = "(b|b)*abb(a|b)*"
     cadena = "abb"
 
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
+    print()
 
     # Ejemplo de uso con expresión en notación postfix
     output_text_file = "texts/afn.txt"
     afn = test_thompson_to_text_prueba(postfix_regex, output_text_file)
+    print("AFN:")
     print(f"Descripción del AFN guardada en '{output_text_file}'")
+    print()
+
 
     estados = afn[0]
     alfabeto = afn[1]
@@ -318,12 +338,15 @@ def main():
 
     afd = dfn.exec(estados, alfabeto, estado_inicial, estados_aceptacion, transiciones)
 
+    print("AFD:")
+    print(f"Descripción del AFD guardada en 'texts/dfa_info.txt'")
     print()
     print("Simulación AFD:")
     print(simulacion_afd(afd, cadena))
     print()
 
     print("AFD Minimal:")
+    print(f"Descripción del AFD MINIMAL guardada en 'texts/minimization_dfa_info.txt'")
 
     estadosTempo = afd[0]
     alfabetoTempo = afd[1]

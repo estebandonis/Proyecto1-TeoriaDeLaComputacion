@@ -20,9 +20,11 @@ def create_dfa_graph(states, acceptance_states, transitions, symbols, start_stat
         node.set_shape("circle")
         for final_state in acceptance_states:
             if final_state in state:
+                node.set_name("Final")
                 node.set_shape("doublecircle")
 
         if start_state in state:
+            node.set_name("Start")
             node.set_shape("circle")
             node.set_style("filled")
 
