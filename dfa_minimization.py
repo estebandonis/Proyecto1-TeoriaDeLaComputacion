@@ -15,13 +15,16 @@ def create_dfa_graph(states, acceptance_states, transitions, symbols, start_stat
 
     # Create nodes for each state
     state_nodes = {}
+    num = 1
     for state in states:
         node = pydotplus.Node(state)
         node.set_shape("circle")
+
         for final_state in acceptance_states:
             if final_state in state:
                 node.set_name("Final")
                 node.set_shape("doublecircle")
+                num += 1
 
         if start_state in state:
             node.set_name("Start")

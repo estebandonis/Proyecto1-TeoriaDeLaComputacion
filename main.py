@@ -13,18 +13,25 @@ def check_conca(token, regex, i):
 
 def shunting_yard_regex(regex):
     # Grado de precedencia de los operadores
-    precedencia = {'*': 3, '|': 2, '.': 1}
+    precedencia = {'|': 1, '.': 2, '*': 3}
 
     # Lista para guardar operandos y operadores
     operadores = []
     operandos = []
 
+    regex = [char for char in regex]
+    h = 0
+    while h < len(regex):
+        if regex[h] == "*":
+            regex.insert(h + 1, '.')
+            h += 1
+        h += 1
+
     # Recorremos la cadena de caracteres
     i = 0
     while i < len(regex):
         token = regex[i]
-        if token not in "(|*) ":
-
+        if token not in "(|*.) ":
             a = check_conca(token, regex, i)
             if a != i:
                 lista = [token]
@@ -48,17 +55,10 @@ def shunting_yard_regex(regex):
 
             else:
                 operandos.append(token)
-        elif token in "|*":
-            while operadores and operadores[-1] in "|*" and precedencia[operadores[-1]] >= precedencia[token]:
+        elif token in "|*.":
+            while operadores and precedencia.get(token, 0) <= precedencia.get(operadores[-1], 0):
                 operandos.append(operadores.pop())
-            if token == '*':
-                operandos.append(".")
-                operandos.append(token)
-                operandos.append(".")
-            else:
-                operandos.append(regex[i + 1])
-                operandos.append(token)
-                i += 1
+            operadores.append(token)
         elif token == '(':
             operadores.append(token)
         elif token == ')':
@@ -109,6 +109,7 @@ def create_dfn_graph(states, acceptance_states, transitions, symbols, start_stat
 
     return dot
 
+
 def test_thompson_to_text_prueba(expr, output_text_file):
     contadorEstados = 0
 
@@ -120,7 +121,9 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
     grupos = []
 
-    stri = expr.split()
+    stri = expr.split(" ")
+
+    stri = [s for s in stri if s != '.']
 
     b = 0
     while b < len(stri):
@@ -128,9 +131,8 @@ def test_thompson_to_text_prueba(expr, output_text_file):
         if carac == '.':
             b += 1
             continue
-        elif carac not in "(|) ":
+        elif carac not in "(|*) ":
             if len(carac) > 1:
-                print(carac)
                 for s in carac:
                     if s in alfabeto:
                         alfabeto.remove(s)
@@ -146,8 +148,7 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                         grupos.append(carac)
 
                 elif b + 1 < len(stri):
-                    if stri[b + 1] != '|':
-                        grupos.append(carac)
+                    grupos.append(carac)
 
                 else:
                     grupos.append(carac)
@@ -160,12 +161,12 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                         alfabeto.append(carac)
 
         elif carac == '|':
-            if stri[b - 1] == carac:
+            if stri[b - 2] in '|*.' or stri[b - 1] in '|*.':
+                grupos.append(carac)
+            elif stri[b - 1] == carac:
                 grupos.append(carac)
             else:
-                # grupos.append([alfabeto[len(alfabeto) - 2], alfabeto[len(alfabeto) - 1], carac])
                 grupos.append([stri[b - 2], stri[b - 1], carac])
-                b += 1
 
         elif carac == '*':
             grupos.append(carac)
@@ -192,6 +193,56 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
                 transiciones.append((nuevo_estado_inicial, group[0], nuevo_estado_final))
                 transiciones.append((nuevo_estado_inicial, group[1], nuevo_estado_final))
+
+            else:
+                i = 0
+                estadoInicialTran = 0
+                while i < len(transiciones):
+                    transi = transiciones[i]
+                    if transi[0] == transi[2]:
+                        transi0 = transiciones[i - 1]
+                        if transi0[0] == 0:
+                            estadoInicialTran = transi0[0]
+                            numTran = transiciones.index(transi0)
+                            b = numTran
+                            transicionesTempo = []
+                            transicionesTempo.append((transi0[0], '𝜀', transi[2]))
+                            while b < len(transiciones):
+                                tran = transiciones[b]
+                                es0 = tran[0] + 1
+                                es1 = tran[1]
+                                es2 = tran[2] + 1
+                                transicionesTempo.append((es0, es1, es2))
+                                b += 1
+                            estados.append(contadorEstados)
+                            contadorEstados += 1
+                            estados_aceptacion = [estados[-1]]
+                            transiciones = transicionesTempo
+                            i += 2
+                            continue
+
+                        else:
+                            transi0 = transiciones[i - 1]
+                            numTran = transiciones.index(transi0)
+                            b = numTran
+                            transicionesNew = transiciones.copy()
+                            transicionesTempo = []
+                            transicionesTempo.append((estadoInicialTran, '𝜀', transi0[0]))
+                            while b < len(transicionesNew):
+                                transiciones.remove(transicionesNew[b])
+                                tran = transicionesNew[b]
+                                es0 = tran[0]
+                                es1 = tran[1]
+                                es2 = tran[2]
+                                transicionesTempo.append((es0, es1, es2))
+                                b += 1
+                            transiciones.extend(transicionesTempo)
+                            transi1 = transiciones[transiciones.index(transi0) - 2]
+                            transiciones[transiciones.index(transi1)] = (transi1[0], transi1[1], estados_aceptacion[0])
+                            i += 2
+                            break
+
+                    i += 1
 
         elif '*' in group:
             grupoAnterior = grupos[linea - 1]
@@ -258,6 +309,8 @@ def test_thompson_to_text_prueba(expr, output_text_file):
 
     estados_aceptacion.append(estados[-1])
 
+    alfabeto = [s for s in alfabeto if s != '.']
+
     with open(output_text_file, 'w', encoding='utf-8') as file:
         file.write(f"ESTADOS = {{{', '.join(map(str, estados))}}}\n")
         file.write(f"SIMBOLOS = {{{', '.join(alfabeto)}}}\n")
@@ -313,10 +366,13 @@ def simulacion_afd(afd, cadena):
 
 
 def main():
+    # infix_regex = "0*.1|1*.0"
     # infix_regex = "0*1|1*0"
-    # cadena = "001"
-    infix_regex = "(b|b)*abb(a|b)*"
-    cadena = "abb"
+    # cadena = "1000"
+    # infix_regex = "(a|a)*(b|b)*abbb(a|a)*"
+    # cadena = "abbb"
+    infix_regex = "(a|a)*bbaa(b|b)*"
+    cadena = "bbaa"
 
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)

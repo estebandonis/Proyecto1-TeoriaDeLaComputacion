@@ -54,8 +54,9 @@ def create_dfa_graph(states, acceptance_states, transitions, symbols, start_stat
 
     # Create nodes for each state
     state_nodes = {}
+    num = 0
     for state in states:
-        node = pydotplus.Node(state)
+        node = pydotplus.Node(num)
         if state == start_state:
             node.set_name("Start")
             node.set_shape("circle")
@@ -68,6 +69,8 @@ def create_dfa_graph(states, acceptance_states, transitions, symbols, start_stat
         node.set_height(0.6)  # Set the desired height
         state_nodes[state] = node
         dot.add_node(node)
+
+        num += 1
 
     # Add transitions as edges
     for (source, symbol, target) in transitions:
