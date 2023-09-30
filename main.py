@@ -366,13 +366,8 @@ def simulacion_afd(afd, cadena):
 
 
 def main():
-    # infix_regex = "0*.1|1*.0"
-    # infix_regex = "0*1|1*0"
-    # cadena = "1000"
-    # infix_regex = "(a|a)*(b|b)*abbb(a|a)*"
-    # cadena = "abbb"
     infix_regex = "(a|a)*bbaa(b|b)*"
-    cadena = "bbaa"
+    cadena = "aabbaa"
 
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)

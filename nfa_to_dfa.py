@@ -34,10 +34,25 @@ def dfa_to_nfa(states, symbols, start_state, final_states, transitions):
             new_state = epsilon(move(state, x, transitions), transitions)
             if new_state not in dfa_states:
                 dfa_states.append(new_state)
+
+            if new_state == set():
+                new_state = 'E'
             dfa_transitions.append((state, x, new_state))
 
-    acceptance_states = [state for state in dfa_states if any(s in final_states for s in state)]
-    start_state = [state for state in dfa_states if start_state.issubset(state)][0]
+    acceptance_states = [state for state in dfa_states if any(
+        s in final_states for s in state)]
+    start_state = [
+        state for state in dfa_states if start_state.issubset(state)][0]
+
+    # check if E is in a transition, if so add it to states
+    for transition in dfa_transitions:
+        if transition[2] == 'E':
+            dfa_states.append('E')
+            break
+
+    # add transition of E to E with all symbols
+    for symbol in symbols:
+        dfa_transitions.append(('E', symbol, 'E'))
 
     return (dfa_states, acceptance_states, dfa_transitions, start_state)
 
