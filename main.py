@@ -3,7 +3,7 @@ import dfa_minimization as min
 import pydotplus
 
 def check_conca(token, regex, i):
-    if token not in "(|*) " and i + 1 < len(regex) and regex[i + 1] not in "(|*) ":
+    if token not in "(|*.) " and i + 1 < len(regex) and regex[i + 1] not in "(|*.) ":
         # Concatenación encontrada, agregamos los caracteres juntos
         a = check_conca(token, regex, i + 1)
         return a
@@ -148,7 +148,8 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                         grupos.append(carac)
 
                 elif b + 1 < len(stri):
-                    grupos.append(carac)
+                    if stri[b + 1] != '|':
+                        grupos.append(carac)
 
                 else:
                     grupos.append(carac)
@@ -366,8 +367,8 @@ def simulacion_afd(afd, cadena):
 
 
 def main():
-    infix_regex = "(a|a)*bbaa(b|b)*"
-    cadena = "aabbaa"
+    infix_regex = "bbaaaa(d|g)"
+    cadena = "bbaaaag"
 
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
