@@ -150,6 +150,8 @@ def test_thompson_to_text_prueba(expr, output_text_file):
                 elif b + 1 < len(stri):
                     if stri[b + 1] != '|':
                         grupos.append(carac)
+                    elif stri[b - 1] in '|*.':
+                        grupos.append(carac)
 
                 else:
                     grupos.append(carac)
@@ -368,7 +370,7 @@ def simulacion_afd(afd, cadena):
 
 def main():
     infix_regex = "bbaaaa(d|g)"
-    cadena = "bbaaaag"
+    cadena = "bbaaaad"
 
     postfix_regex = shunting_yard_regex(infix_regex)
     print("Cadena convertida a postfix: " + postfix_regex)
